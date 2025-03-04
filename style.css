@@ -1,0 +1,126 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url('pokemon_background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    font-family: "Press Start 2P", system-ui;
+    color: #203764;
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 5px solid black;
+    position: relative;
+    background: linear-gradient(to bottom, red 50%, white 50%);
+    margin-bottom: 20px;
+    animation: rotateLogo 10s linear infinite;
+}
+
+.logo::before { /* Uzayan çizgi kaldırıldı */
+    display: none;
+}
+
+.logo::after { /* Beyaz daire yerine siyah nokta */
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: "Press Start 2P", system-ui;
+}
+
+button {
+    background-color: #ffcb05;
+    color: #203764;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #e6b400;
+}
+
+.pikachu-silhouette {
+    width: 80px;
+    height: 100px;
+    background-color: #ffcb05;
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    animation: tail-wag 1s infinite linear;
+}
+
+.pikachu-silhouette::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    border-radius: 50%;
+    top: 20px;
+    left: 15px;
+}
+
+.pikachu-silhouette::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    border-radius: 50%;
+    top: 20px;
+    right: 15px;
+}
+
+@keyframes shake {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(5deg); }
+}
+
+@keyframes tail-wag {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes rotateLogo {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#live-clock {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
