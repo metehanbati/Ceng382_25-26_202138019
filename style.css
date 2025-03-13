@@ -30,11 +30,11 @@ body {
     animation: rotateLogo 10s linear infinite;
 }
 
-.logo::before { /* Uzayan çizgi kaldırıldı */
+.logo::before {
     display: none;
 }
 
-.logo::after { /* Beyaz daire yerine siyah nokta */
+.logo::after {
     content: '';
     position: absolute;
     width: 20px;
@@ -46,7 +46,8 @@ body {
     transform: translate(-50%, -50%);
 }
 
-input, button {
+input,
+button {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -101,20 +102,34 @@ button:hover {
 }
 
 @keyframes shake {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(5deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(5deg);
+    }
 }
 
 @keyframes tail-wag {
-    0% { transform: rotate(0deg); }
-    50% { transform: rotate(15deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(15deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
 
 @keyframes rotateLogo {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
