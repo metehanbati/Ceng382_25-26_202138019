@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj": {}
+    "c:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj": {
+    "c:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj",
+        "projectUniqueName": "c:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj",
         "projectName": "LabProject",
-        "projectPath": "C:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj",
+        "projectPath": "c:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\LabProject.csproj",
         "packagesPath": "C:\\Users\\mthnb\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\obj\\",
+        "outputPath": "c:\\Users\\mthnb\\OneDrive\\Desktop\\Ceng382_25-26_202138019\\LabProject\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mthnb\\AppData\\Roaming\\NuGet\\NuGet.Config",
