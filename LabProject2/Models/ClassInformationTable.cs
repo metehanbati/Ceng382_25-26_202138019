@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace LabProject2.Models
 {
@@ -14,5 +15,17 @@ namespace LabProject2.Models
         public int StudentCount { get; set; }
         
         public string Description { get; set; } = string.Empty;
+        
+        // Not part of the data model, but used for column selection in UI
+        [JsonIgnore]
+        public bool IsSelected { get; set; } = false;
+    }
+    
+    // New class to represent available columns for selection
+    public class ColumnSelection
+    {
+        public string PropertyName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public bool IsSelected { get; set; } = false;
     }
 }

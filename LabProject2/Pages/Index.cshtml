@@ -43,6 +43,53 @@
                   <button type="submit" class="btn btn-success" asp-page-handler="Add">Add Class</button>
               }
           </form>
+          
+          @* JSON Export Section *@
+          <div class="mt-4">
+              <h4>Export Options</h4>
+              <hr />
+              
+              <div class="mb-3">
+                  <h5>Select Columns to Export:</h5>
+                  <div class="d-flex flex-wrap column-selection">
+                      @foreach (var column in Model.AvailableColumns)
+                      {
+                          <form method="post" class="me-2 mb-2">
+                              <button type="submit" 
+                                     asp-page-handler="ToggleColumn" 
+                                     asp-route-propertyName="@column.PropertyName"
+                                     class="btn @(column.IsSelected ? "btn-primary" : "btn-outline-secondary")">
+                                  @column.DisplayName
+                              </button>
+                          </form>
+                      }
+                  </div>
+                  <div class="text-muted small">
+                      @if (!Model.AvailableColumns.Any(c => c.IsSelected))
+                      {
+                          <span>No columns selected. All columns will be exported.</span>
+                      }
+                      else
+                      {
+                          <span>Selected columns will be highlighted in blue.</span>
+                      }
+                  </div>
+              </div>
+              
+              <div class="d-flex">
+                  <form method="post" class="me-2">
+                      <button type="submit" class="btn btn-outline-primary" asp-page-handler="ExportAllJson">
+                          <i class="bi bi-file-earmark-code"></i> Export All to JSON
+                      </button>
+                  </form>
+                  
+                  <form method="post">
+                      <button type="submit" class="btn btn-outline-info" asp-page-handler="ExportFilteredJson">
+                          <i class="bi bi-funnel"></i> Export Filtered to JSON
+                      </button>
+                  </form>
+              </div>
+          </div>
     </div>
 
     @* Right Column: Filter, Table, and Pagination *@
@@ -184,4 +231,11 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <style>
+        /* Style for selected columns */
+        .column-selection .btn-primary {
+            border-width: 2px;
+        }
+    </style>
 }

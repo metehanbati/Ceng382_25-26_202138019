@@ -1,9 +1,11 @@
 using LabProject2.Models;
+using LabProject2.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace LabProject2.Pages
 {
@@ -33,6 +35,10 @@ namespace LabProject2.Pages
         public int PageSize { get; set; } = 5; // Show 5 items per page
         public int TotalPages { get; private set; }
         public int TotalRecords { get; private set; }
+        
+        // --- Properties for Column Selection ---
+        [BindProperty]
+        public List<ColumnSelection> AvailableColumns { get; set; } = new List<ColumnSelection>();
 
         // Static constructor to ensure data generation happens only once
         static IndexModel()
@@ -61,6 +67,17 @@ namespace LabProject2.Pages
 
         public void OnGet()
         {
+            // Initialize available columns if not already done
+            if (!AvailableColumns.Any())
+            {
+                AvailableColumns = new List<ColumnSelection>
+                {
+                    new ColumnSelection { PropertyName = "ClassName", DisplayName = "Class Name", IsSelected = false },
+                    new ColumnSelection { PropertyName = "StudentCount", DisplayName = "Student Count", IsSelected = false },
+                    new ColumnSelection { PropertyName = "Description", DisplayName = "Description", IsSelected = false }
+                };
+            }
+            
             // Start with the full list as a queryable source
             var query = _classes.AsQueryable();
 
@@ -176,6 +193,91 @@ namespace LabProject2.Pages
             
             // Redirect with current filter/page context
             return RedirectToPage(new { SearchTerm = SearchTerm, CurrentPage = CurrentPage });
+        }
+        
+        // New handler for toggling column selection
+        public IActionResult OnPostToggleColumn(string propertyName)
+        {
+            // We need to repopulate the columns and toggle the selected one
+            InitializeColumns();
+            
+            var column = AvailableColumns.FirstOrDefault(c => c.PropertyName == propertyName);
+            if (column != null)
+            {
+                column.IsSelected = !column.IsSelected;
+            }
+            
+            // Repopulate table data
+            OnGet();
+            return Page();
+        }
+        
+        // Helper to initialize columns
+        private void InitializeColumns()
+        {
+            if (!AvailableColumns.Any())
+            {
+                AvailableColumns = new List<ColumnSelection>
+                {
+                    new ColumnSelection { PropertyName = "ClassName", DisplayName = "Class Name", IsSelected = false },
+                    new ColumnSelection { PropertyName = "StudentCount", DisplayName = "Student Count", IsSelected = false },
+                    new ColumnSelection { PropertyName = "Description", DisplayName = "Description", IsSelected = false }
+                };
+            }
+        }
+        
+        // Export handlers for JSON
+        public IActionResult OnPostExportAllJson()
+        {
+            // Get selected column names or null if none selected
+            var selectedColumns = GetSelectedColumnNames();
+            
+            // Use the singleton Utils class to export all classes
+            string jsonData = Utils.Instance.ExportToJson(_classes, selectedColumns);
+            
+            // Return as file download
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
+            return File(bytes, "application/json", "all_classes.json");
+        }
+        
+        public IActionResult OnPostExportFilteredJson()
+        {
+            // Apply filtering to get data
+            var query = _classes.AsQueryable();
+            
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                query = query.Where(c => c.ClassName != null && 
+                                  c.ClassName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+            
+            var filteredData = query.ToList();
+            
+            // Get selected column names
+            var selectedColumns = GetSelectedColumnNames();
+            
+            // Use the singleton Utils class to export filtered classes
+            string jsonData = Utils.Instance.ExportToJson(filteredData, selectedColumns);
+            
+            // Return as file download
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
+            return File(bytes, "application/json", "filtered_classes.json");
+        }
+        
+        // Helper to get selected column names
+        private List<string>? GetSelectedColumnNames()
+        {
+            // If no columns are explicitly selected, return null (meaning all columns)
+            if (!AvailableColumns.Any(c => c.IsSelected))
+            {
+                return null;
+            }
+            
+            // Otherwise return the names of selected columns
+            return AvailableColumns
+                .Where(c => c.IsSelected)
+                .Select(c => c.PropertyName)
+                .ToList();
         }
     }
 }
