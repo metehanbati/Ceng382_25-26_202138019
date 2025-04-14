@@ -1,103 +1,187 @@
 ﻿@page
-@model IndexModel
+@model LabProject2.Pages.IndexModel
 @{
-    ViewData["Title"] = "Class Information";
+    ViewData["Title"] = "Class Management";
 }
 
-<div class="container mt-4">
-    <h1 class="mb-4">Class Information Management</h1>
-    
-    <div class="row">
-        <!-- Form Column -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    @(Model.IsEditing ? "Edit Class" : "Add New Class")
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <div class="mb-3">
-                            <label asp-for="ClassInfo.ClassName" class="form-label"></label>
-                            <input asp-for="ClassInfo.ClassName" class="form-control" />
-                            <span asp-validation-for="ClassInfo.ClassName" class="text-danger"></span>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label asp-for="ClassInfo.StudentCount" class="form-label"></label>
-                            <input asp-for="ClassInfo.StudentCount" class="form-control" type="number" />
-                            <span asp-validation-for="ClassInfo.StudentCount" class="text-danger"></span>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label asp-for="ClassInfo.Description" class="form-label"></label>
-                            <textarea asp-for="ClassInfo.Description" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="ClassInfo.Description" class="text-danger"></span>
-                        </div>
-                        
-                        @if (Model.IsEditing)
-                        {
-                            <input type="hidden" asp-for="ClassInfo.Id" />
-                            <button type="submit" class="btn btn-success" asp-page-handler="Update" asp-route-id="@Model.ClassInfo.Id">Update Class</button>
-                            <a class="btn btn-secondary" asp-page="Index">Cancel</a>
-                        }
-                        else
-                        {
-                            <button type="submit" class="btn btn-primary" asp-page-handler="Add">Add Class</button>
-                        }
-                    </form>
-                </div>
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    @* Left Column: Add/Edit Form *@
+    <div class="col-md-4">
+         <h2>@(Model.EditId.HasValue ? "Edit Class" : "Add New Class")</h2>
+         <hr />
+         <form method="post">
+             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+              @if (Model.EditId.HasValue)
+              {
+                  <input type="hidden" asp-for="InputModel.Id" />
+              }
+              <div class="mb-3">
+                  <label asp-for="InputModel.ClassName" class="form-label"></label>
+                  <input asp-for="InputModel.ClassName" class="form-control" />
+                  <span asp-validation-for="InputModel.ClassName" class="text-danger"></span>
+              </div>
+              <div class="mb-3">
+                  <label asp-for="InputModel.StudentCount" class="form-label"></label>
+                  <input asp-for="InputModel.StudentCount" type="number" class="form-control" />
+                  <span asp-validation-for="InputModel.StudentCount" class="text-danger"></span>
+              </div>
+              <div class="mb-3">
+                  <label asp-for="InputModel.Description" class="form-label"></label>
+                  <textarea asp-for="InputModel.Description" class="form-control" rows="3"></textarea>
+                  <span asp-validation-for="InputModel.Description" class="text-danger"></span>
+              </div>
+
+              @if (Model.EditId.HasValue)
+              {
+                  <button type="submit" class="btn btn-primary" asp-page-handler="Edit">Update Class</button>
+                  <a asp-page="./Index" asp-route-searchTerm="@Model.SearchTerm" asp-route-currentPage="@Model.CurrentPage" class="btn btn-secondary">Cancel Edit</a>
+              }
+              else
+              {
+                  <button type="submit" class="btn btn-success" asp-page-handler="Add">Add Class</button>
+              }
+          </form>
+    </div>
+
+    @* Right Column: Filter, Table, and Pagination *@
+    <div class="col-md-8">
+        <h2>Class List</h2>
+        <hr />
+
+        @* Filter Form (Uses GET) *@
+        <form method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" asp-for="SearchTerm" class="form-control" placeholder="Filter by Class Name..." />
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a asp-page="./Index" class="btn btn-outline-secondary">Clear</a>
             </div>
-        </div>
-        
-        <!-- Table Column -->
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    Class List
-                </div>
-                <div class="card-body">
-                    @if (Model.Classes.Any())
+        </form>
+
+        @* Table - Uses DisplayClasses and hides ID column *@
+        @if (!Model.DisplayClasses.Any())
+        {
+            <p>@(string.IsNullOrWhiteSpace(Model.SearchTerm) ? "No classes have been added yet." : "No classes found matching your filter.")</p>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        @* ID column removed as per requirements *@
+                        <th>Class Name</th>
+                        <th>Student Count</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.DisplayClasses)
                     {
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Class Name</th>
-                                        <th>Student Count</th>
-                                        <th>Description</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.Classes)
-                                    {
-                                        <tr>
-                                            <td>@item.Id</td>
-                                            <td>@item.ClassName</td>
-                                            <td>@item.StudentCount</td>
-                                            <td>@item.Description</td>
-                                            <td>
-                                                <a class="btn btn-sm btn-warning" asp-page="Index" asp-page-handler="Edit" asp-route-id="@item.Id">Edit</a>
-                                                <a class="btn btn-sm btn-danger" asp-page="Index" asp-page-handler="Delete" asp-route-id="@item.Id"
-                                                   onclick="return confirm('Are you sure you want to delete this class?')">Delete</a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                        <tr>
+                            <td>@item.ClassName</td>
+                            <td>@item.StudentCount</td>
+                            <td>@item.Description</td>
+                            <td>
+                                <a asp-page="./Index"
+                                   asp-route-EditId="@item.Id"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-currentPage="@Model.CurrentPage"
+                                   class="btn btn-sm btn-warning me-1">Edit</a>
+
+                                <form method="post"
+                                      asp-page-handler="Delete"
+                                      asp-route-id="@item.Id"
+                                      asp-route-searchTerm="@Model.SearchTerm"
+                                      asp-route-currentPage="@Model.CurrentPage"
+                                      style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
                     }
-                    else
+                </tbody>
+            </table>
+
+            @* Pagination Controls *@
+            <nav aria-label="Class list navigation">
+                <ul class="pagination justify-content-center">
+                    @* Previous Button *@
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-page="./Index"
+                           asp-route-currentPage="@(Model.CurrentPage - 1)"
+                           asp-route-searchTerm="@Model.SearchTerm">Previous</a>
+                    </li>
+
+                    @* Smart Pagination that doesn't show too many links *@
+                    @{
+                        int pagesToShow = 5;
+                        int startPage = Math.Max(1, Model.CurrentPage - (pagesToShow / 2));
+                        int endPage = Math.Min(Model.TotalPages, startPage + pagesToShow - 1);
+                        
+                        // Adjust startPage if we're near the end
+                        if (endPage - startPage + 1 < pagesToShow && startPage > 1)
+                        {
+                            startPage = Math.Max(1, endPage - pagesToShow + 1);
+                        }
+                    }
+
+                    @* First Page *@
+                    @if (startPage > 1)
                     {
-                        <p class="text-center">No classes have been added yet.</p>
+                        <li class="page-item">
+                            <a class="page-link" asp-page="./Index"
+                               asp-route-currentPage="1"
+                               asp-route-searchTerm="@Model.SearchTerm">1</a>
+                        </li>
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
                     }
-                </div>
-            </div>
-        </div>
+
+                    @* Page Numbers *@
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-page="./Index"
+                               asp-route-currentPage="@i"
+                               asp-route-searchTerm="@Model.SearchTerm">@i</a>
+                        </li>
+                    }
+
+                    @* Last Page *@
+                    @if (endPage < Model.TotalPages)
+                    {
+                        @if (endPage < Model.TotalPages - 1)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" asp-page="./Index"
+                               asp-route-currentPage="@Model.TotalPages"
+                               asp-route-searchTerm="@Model.SearchTerm">@Model.TotalPages</a>
+                        </li>
+                    }
+
+                    @* Next Button *@
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages || Model.TotalPages == 0 ? "disabled" : "")">
+                         <a class="page-link" asp-page="./Index"
+                            asp-route-currentPage="@(Model.CurrentPage + 1)"
+                            asp-route-searchTerm="@Model.SearchTerm">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            <p class="text-center">Page @Model.CurrentPage of @Model.TotalPages (Total Records: @Model.TotalRecords)</p>
+        }
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
