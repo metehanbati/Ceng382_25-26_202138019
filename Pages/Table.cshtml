@@ -1,0 +1,200 @@
+@page
+@model LabProject2.Pages.TableModel
+@{
+    ViewData["Title"] = "Sınıf Bilgileri";
+}
+
+<style>
+    /* Week 7: Seçilen sütunların görsel olarak değişimi */
+    .column-selector input[type="checkbox"]:checked + label {
+        background-color: #007bff; /* Mavi arka plan */
+        color: white; /* Beyaz yazı */
+        border-color: #007bff;
+    }
+    .column-selector label {
+        border: 1px solid #ccc;
+        padding: 5px 10px;
+        margin-right: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-block;
+    }
+    .column-selector input[type="checkbox"] {
+        display: none; /* Checkbox'ı gizle */
+    }
+</style>
+
+<div class="container-fluid">
+    <h1>Sınıf Bilgileri Yönetimi</h1>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            @Model.SuccessMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger mt-3" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    @if (Model.EditId.HasValue)
+                    {
+                        <span>Sınıf Düzenle</span>
+                    }
+                    else
+                    {
+                        <span>Yeni Sınıf Ekle</span>
+                    }
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Add">
+                        <input type="hidden" asp-for="CurrentClass.Id" />
+                        <div class="mb-3">
+                            <label asp-for="CurrentClass.ClassName" class="form-label">Sınıf Adı</label>
+                            <input asp-for="CurrentClass.ClassName" class="form-control" />
+                            <span asp-validation-for="CurrentClass.ClassName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="CurrentClass.StudentCount" class="form-label">Öğrenci Sayısı</label>
+                            <input asp-for="CurrentClass.StudentCount" class="form-control" type="number" />
+                            <span asp-validation-for="CurrentClass.StudentCount" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="CurrentClass.Description" class="form-label">Açıklama</label>
+                            <textarea asp-for="CurrentClass.Description" class="form-control"></textarea>
+                            <span asp-validation-for="CurrentClass.Description" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            @if (Model.EditId.HasValue)
+                            {
+                                <span>Güncelle</span>
+                            }
+                            else
+                            {
+                                <span>Ekle</span>
+                            }
+                        </button>
+                        @if (Model.EditId.HasValue)
+                        {
+                            <a asp-page="/Table" class="btn btn-secondary ms-2">İptal</a>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    Sınıf Listesi
+                </div>
+                <div class="card-body">
+                    <form method="get" asp-page-handler="Filter" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" asp-for="SearchTerm" class="form-control" placeholder="Ara..." />
+                            <button type="submit" class="btn btn-outline-secondary">Filtrele</button>
+                            <a asp-page="/Table" class="btn btn-outline-secondary">Temizle</a>
+                        </div>
+                    </form>
+
+                    <h5 class="mt-4">Verileri JSON Olarak Dışa Aktar</h5>
+                    <form method="post">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Dışa Aktarılacak Sütunları Seçin (Hiçbiri seçilmezse hepsi):</label>
+                                <div class="column-selector d-flex flex-wrap">
+                                    <input type="checkbox" id="col_id" name="SelectedColumns" value="Id" @(Model.SelectedColumns.Contains("Id") ? "checked" : "") />
+                                    <label for="col_id">ID</label>
+
+                                    <input type="checkbox" id="col_className" name="SelectedColumns" value="ClassName" @(Model.SelectedColumns.Contains("ClassName") ? "checked" : "") />
+                                    <label for="col_className">Sınıf Adı</label>
+
+                                    <input type="checkbox" id="col_studentCount" name="SelectedColumns" value="StudentCount" @(Model.SelectedColumns.Contains("StudentCount") ? "checked" : "") />
+                                    <label for="col_studentCount">Öğrenci Sayısı</label>
+
+                                    <input type="checkbox" id="col_description" name="SelectedColumns" value="Description" @(Model.SelectedColumns.Contains("Description") ? "checked" : "") />
+                                    <label for="col_description">Açıklama</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" asp-page-handler="ExportJson" asp-route-exportMode="unfiltered" class="btn btn-success me-2">
+                            Tüm Veriyi Dışa Aktar
+                        </button>
+                        <button type="submit" asp-page-handler="ExportJson" asp-route-exportMode="filtered" class="btn btn-info">
+                            Filtrelenmiş Veriyi Dışa Aktar
+                        </button>
+                    </form>
+
+                    <table class="table table-bordered table-striped mt-4">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">ID</th>
+                                <th>Sınıf Adı</th>
+                                <th>Öğrenci Sayısı</th>
+                                <th>Açıklama</th>
+                                <th style="width: 150px;">Eylemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ClassInformation != null && Model.ClassInformation.Any())
+                            {
+                                @foreach (var item in Model.ClassInformation)
+                                {
+                                    <tr>
+                                        <td>@item.Id</td>
+                                        <td>@item.ClassName</td>
+                                        <td>@item.StudentCount</td>
+                                        <td>@item.Description</td>
+                                        <td>
+                                            <form method="post" class="d-inline">
+                                                <button type="submit" asp-page-handler="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-2">Düzenle</button>
+                                            </form>
+                                            <form method="post" class="d-inline">
+                                                <button type="submit" asp-page-handler="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Sil</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5">Gösterilecek sınıf bilgisi bulunamadı.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.ClassInformation?.HasPreviousPage == true ? "" : "disabled")">
+                                <a class="page-link" asp-page="/Table" asp-route-pageIndex="@(Model.ClassInformation?.PageIndex - 1)" asp-route-searchTerm="@Model.SearchTerm">Önceki</a>
+                            </li>
+                            @for (var i = 1; i <= Model.ClassInformation?.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.ClassInformation?.PageIndex ? "active" : "")">
+                                    <a class="page-link" asp-page="/Table" asp-route-pageIndex="@i" asp-route-searchTerm="@Model.SearchTerm">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.ClassInformation?.HasNextPage == true ? "" : "disabled")">
+                                <a class="page-link" asp-page="/Table" asp-route-pageIndex="@(Model.ClassInformation?.PageIndex + 1)" asp-route-searchTerm="@Model.SearchTerm">Sonraki</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
